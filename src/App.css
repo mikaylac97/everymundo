@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+
+/**/
+
+.destination-image {
+  background-repeat: no-repeat;
+    background-size: cover;
+    min-width: 100%;
+    height: 143px;
+    background-position: center;
+}
+
+.route-card-top {
+  min-height: 135px;
+}
+
+.deal-btn {
+  display: block;
+  width: 100%;
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
