@@ -55,7 +55,7 @@ export default class PopularRoutes extends Component {
             })
             .then(responseFromAPI => {
                 this.setState({ searchResults: responseFromAPI.data })
-                this.props.onFlightsChange(responseFromAPI.data[0])
+                this.props.onFlightsChange(responseFromAPI.data)
                 this.props.history.push('/results')
             })
             .catch(err => console.log(err))
