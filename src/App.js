@@ -1,13 +1,29 @@
-import logo from './logo.svg';
+import React from 'react'
 import './App.css';
 import PopularRoutes from './components/PopularRoutes'
+import { Switch, Route } from 'react-router-dom';
+import SearchResults from './components/SearchResults';
 
-function App() {
-  return (
-    <div className="App">
-      <PopularRoutes />
-    </div>
-  );
+export default class App extends React.Component {
+
+  state = {
+    flightsViewing: []
+  }
+
+  setFlights = (flights) => {
+    this.setState({ flightsViewing: flights })
+  }
+
+render() {
+    return (
+      <div className="App">
+        <Switch>
+          <Route exact path='/' render={props => <PopularRoutes {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
+          <Route exact path='/results' render={props => <SearchResults {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
+        </Switch>
+      </div>
+    );
+  }
 }
+ 
 
-export default App;

@@ -7,6 +7,7 @@ import '../App.css'
 export default class PopularRoutes extends Component {
     state = {
         popularRoutes: [],
+        searchResults: [],
         displayFlightModal: false,
         destination: '',
         origin: '',
@@ -29,6 +30,7 @@ export default class PopularRoutes extends Component {
                 this.setState({
                     popularRoutes: responseFromAPI.data
                 })
+                this.props.onFlightsChange(responseFromAPI.data)
             })
             .catch(err => console.log(err))
     }
@@ -51,7 +53,11 @@ export default class PopularRoutes extends Component {
                     "Content-Type": "application/json"
                 }
             })
-            .then(responseFromAPI => console.log(responseFromAPI.data))
+            .then(responseFromAPI => {
+                this.setState({ searchResults: responseFromAPI.data })
+                this.props.onFlightsChange(responseFromAPI.data[0])
+                this.props.history.push('/results')
+            })
             .catch(err => console.log(err))
     }
 
@@ -73,6 +79,7 @@ export default class PopularRoutes extends Component {
 
 
     render() {
+        console.log(this.props)
         // const { message } = this.state;
         const { popularRoutes, displayFlightModal, modalIndex, departureDate, returnDate, tripType, origin, destination, passengerCount } = this.state;
         // const splitDate = departureDate?.split('/')
