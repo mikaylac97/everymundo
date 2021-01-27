@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap'
+import axios from 'axios'
 import MUNDO_SERVICE from '../services/RoutesService'
 import '../App.css'
 
@@ -37,34 +38,45 @@ export default class PopularRoutes extends Component {
         this.setState({ [name]: value });
     }
 
+
     handleSubmit = (event) => {
         event.preventDefault();
         const { destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode } = this.state;
-        MUNDO_SERVICE
-            .searchFlights({ destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode })
-            .then(responseFromAPI => console.log(responseFromAPI))
+        let passengerParseInt = parseInt(passengerCount)
+        let flightInfo = JSON.stringify({ destination, origin, tripType, departureDate, returnDate, promoCode, passengerCount: passengerParseInt })
+        axios
+            .post('https://everymundotechnical.herokuapp.com/search/MC723567Da', flightInfo, 
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(responseFromAPI => console.log(responseFromAPI.data))
             .catch(err => console.log(err))
     }
 
     toggleModal = (event) => {
         console.log(event.target.id)
+        const { displayFlightModal, modalIndex, destination, origin, tripType, departureDate, returnDate, popularRoutes } = this.state;
         this.setState({
-            displayFlightModal: !this.state.displayFlightModal,
-            modalIndex: event.target.id
+            displayFlightModal: !displayFlightModal,
+            modalIndex: event.target.id,
+            destination: popularRoutes[modalIndex]?.destination,
+            origin: popularRoutes[modalIndex]?.origin,
+            tripType: popularRoutes[modalIndex]?.tripType,
+            departureDate: popularRoutes[modalIndex]?.departureDate,
+            returnDate: popularRoutes[modalIndex]?.returnDate
         })
     }
 
-    // convertDate = (date) => {
-    //     let splitDate = date.split('/')
-    //     return `${splitDate[2]}-${splitDate[0]}-${splitDate[1]}`
-    //   }
 
 
 
     render() {
         // const { message } = this.state;
-        const { popularRoutes, displayFlightModal, modalIndex } = this.state;
-        let splitDate = popularRoutes[modalIndex]?.departureDate.split('/')
+        const { popularRoutes, displayFlightModal, modalIndex, departureDate, returnDate, tripType, origin, destination, passengerCount } = this.state;
+        // const splitDate = departureDate?.split('/')
+        // console.log(splitDate)
         return (
             <div className='container'>
                 <div className='row'>
@@ -110,32 +122,32 @@ export default class PopularRoutes extends Component {
                                     <div>
                                     <label>
                                         Round-trip
-                                        <input type='radio' name='tripType'/>
+                                        <input type='radio' name='tripType' required value='roundTrip' checked={tripType === 'roundTrip'} onChange={this.handleInputChange} />
                                     </label>
                                     <label>
                                         One Way
-                                        <input type='radio' name='tripType'/>
+                                        <input type='radio' name='tripType' required value='oneWay' checked={tripType === 'oneWay'} onChange={this.handleInputChange} />
                                     </label>
                                     <label>From*
-                                        <input type='text' name='origin' id='from' required value={this.state.popularRoutes[this.state.modalIndex]?.origin} onChange={this.handleInputChange} />
+                                        <input type='text' name='origin' id='from' required value={origin} onChange={this.handleInputChange} />
                                     </label>
                                     <label>To*   
-                                        <input type='text' name='destination' id='to' required value={this.state.popularRoutes[this.state.modalIndex]?.destination} onChange={this.handleInputChange} />
+                                        <input type='text' name='destination' id='to' required value={destination} onChange={this.handleInputChange} />
                                     </label>
                                     <label>
                                         Depart*
-                                        <input type='date' name='departureDate' id='depart' required value={} onChange={this.handleInputChange} />
+                                        <input type='date' name='departureDate' id='depart' required value={departureDate} onChange={this.handleInputChange} />
                                     </label>     
                                     <label>
                                         Return*
-                                        <input type='date' name='returnDate' id='return' required value={this.state.popularRoutes[this.state.modalIndex]?.returnDate} onChange={this.handleInputChange} />
+                                        <input type='date' name='returnDate' id='return' value={returnDate} onChange={this.handleInputChange} />
                                     </label>
                                         <label>Passengers
-                                        <input type='number' min='1' max='10' name='passengers' id='passengers' required onChange={this.handleInputChange} />
+                                        <input type='number' min='1' name='passengerCount' value={passengerCount} id='passengers' pattern="^-?[0-9]\d*\.?\d*$" required onInput={this.handleInputChange} />
                                         </label>
                                     <label>
                                         Promo Code
-                                        <input type='text' name='promoCode' id='promoCode' onChange={this.handleInputChange} />
+                                        <input type='text' name='promoCode' id='promoCode' value='' onChange={this.handleInputChange} />
                                     </label>
                                         
                                     </div>

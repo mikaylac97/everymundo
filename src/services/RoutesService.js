@@ -10,7 +10,10 @@ const MUNDO_SERVICE = {
     },
 
     searchFlights(flightInfo) {
-        return service.post('/search/MC723567Da', flightInfo)
+        // const infoToJson = JSON.stringify(flightInfo)
+        // console.log(infoToJson)
+        console.log(flightInfo)
+        return service.post('/search/MC723567Da', {})
     }
 }
 
