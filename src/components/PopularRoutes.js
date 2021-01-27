@@ -12,7 +12,9 @@ export default class PopularRoutes extends Component {
         tripType: '',
         departureDate: '',
         returnDate: '',
-        passengerCount: 0
+        passengerCount: 0,
+        promoCode: '',
+        modalIndex: 0
     }
 
     componentDidMount() {
@@ -37,25 +39,32 @@ export default class PopularRoutes extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault();
-        const { destination, origin, tripType, departureDate, returnDate } = this.state;
+        const { destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode } = this.state;
         MUNDO_SERVICE
-            .searchFlights({ destination, origin, tripType, departureDate, returnDate })
+            .searchFlights({ destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode })
             .then(responseFromAPI => console.log(responseFromAPI))
             .catch(err => console.log(err))
     }
 
     toggleModal = (event) => {
-        console.log(event)
+        console.log(event.target.id)
         this.setState({
-            displayFlightModal: !this.state.displayFlightModal
+            displayFlightModal: !this.state.displayFlightModal,
+            modalIndex: event.target.id
         })
     }
+
+    // convertDate = (date) => {
+    //     let splitDate = date.split('/')
+    //     return `${splitDate[2]}-${splitDate[0]}-${splitDate[1]}`
+    //   }
 
 
 
     render() {
-        console.log(this.state.popularRoutes)
-        const { message } = this.state;
+        // const { message } = this.state;
+        const { popularRoutes, displayFlightModal, modalIndex } = this.state;
+        let splitDate = popularRoutes[modalIndex]?.departureDate.split('/')
         return (
             <div className='container'>
                 <div className='row'>
@@ -72,7 +81,7 @@ export default class PopularRoutes extends Component {
                                 <div className='to-left'>
                                     <div className='route-card-top'>
                                         <p>{route.origin}-{route.destination}</p>
-                                        <p>{route.departureDate}</p>
+                                        <p>{route.departureDate} {route.returnDate && route.tripType === 'roundTrip' && <> - {route.returnDate}</>}</p>
                                     </div>
                                 </div>
                                 <div className='to-right'>
@@ -90,7 +99,10 @@ export default class PopularRoutes extends Component {
                                 </div>
                                 </li>
                             </div>
-                            <Modal centered isOpen={this.state.displayFlightModal}>
+                    </>
+                        )
+                    })}
+                    <Modal centered isOpen={this.state.displayFlightModal}>
                         <ModalHeader toggle={this.toggleModal}>Search Flights</ModalHeader>
                         <ModalBody>
                             <div className='modal-form'>
@@ -105,18 +117,18 @@ export default class PopularRoutes extends Component {
                                         <input type='radio' name='tripType'/>
                                     </label>
                                     <label>From*
-                                        <input type='text' name='origin' id='from' required value={this.state.popularRoutes[i].origin} onChange={this.handleInputChange} />
+                                        <input type='text' name='origin' id='from' required value={this.state.popularRoutes[this.state.modalIndex]?.origin} onChange={this.handleInputChange} />
                                     </label>
                                     <label>To*   
-                                        <input type='text' name='destination' id='to' required value={this.state.destination} onChange={this.handleInputChange} />
+                                        <input type='text' name='destination' id='to' required value={this.state.popularRoutes[this.state.modalIndex]?.destination} onChange={this.handleInputChange} />
                                     </label>
                                     <label>
                                         Depart*
-                                        <input type='date' name='departureDate' id='depart' required value={this.state.departureDate} onChange={this.handleInputChange} />
+                                        <input type='date' name='departureDate' id='depart' required value={} onChange={this.handleInputChange} />
                                     </label>     
                                     <label>
                                         Return*
-                                        <input type='date' name='returnDate' id='return' required value={this.state.returnDate} onChange={this.handleInputChange} />
+                                        <input type='date' name='returnDate' id='return' required value={this.state.popularRoutes[this.state.modalIndex]?.returnDate} onChange={this.handleInputChange} />
                                     </label>
                                         <label>Passengers
                                         <input type='number' min='1' max='10' name='passengers' id='passengers' required onChange={this.handleInputChange} />
@@ -131,13 +143,11 @@ export default class PopularRoutes extends Component {
                                         <input type='submit' name='search' id='search' className='form-submit-btn' value='Search Flights' />
                                     </div>
                                 </form>
-                                {message && <div style={{ color: "red", paddingTop: "1rem" }}> {message} </div>}
+                                {/* {message && <div style={{ color: "red", paddingTop: "1rem" }}> {message} </div>} */}
                             </div>
                         </ModalBody>
                     </Modal>
-                    </>
-                        )
-                    })}
+                    
                 </ul>
                 
                     
