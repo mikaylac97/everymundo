@@ -1,10 +1,18 @@
 import React, { Component } from 'react'
+import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap'
 import MUNDO_SERVICE from '../services/RoutesService'
 import '../App.css'
 
 export default class PopularRoutes extends Component {
     state = {
-        popularRoutes: []
+        popularRoutes: [],
+        displayFlightModal: false,
+        destination: '',
+        origin: '',
+        tripType: '',
+        departureDate: '',
+        returnDate: '',
+        passengerCount: 0
     }
 
     componentDidMount() {
@@ -22,15 +30,40 @@ export default class PopularRoutes extends Component {
             .catch(err => console.log(err))
     }
 
+    handleInputChange = (event) => {
+        const { name, value } = event.target;
+        this.setState({ [name]: value });
+    }
+
+    handleSubmit = (event) => {
+        event.preventDefault();
+        const { destination, origin, tripType, departureDate, returnDate } = this.state;
+        MUNDO_SERVICE
+            .searchFlights({ destination, origin, tripType, departureDate, returnDate })
+            .then(responseFromAPI => console.log(responseFromAPI))
+            .catch(err => console.log(err))
+    }
+
+    toggleModal = (event) => {
+        console.log(event)
+        this.setState({
+            displayFlightModal: !this.state.displayFlightModal
+        })
+    }
+
+
+
     render() {
         console.log(this.state.popularRoutes)
+        const { message } = this.state;
         return (
             <div className='container'>
                 <div className='row'>
                 <ul>
-                    {this.state.popularRoutes.map(route => {
+                    {this.state.popularRoutes.map((route, i) => {
                         return(
-                            <div>
+                            <>
+                            <div id={i}>
                                 <li className='card'>
                                 <div>
                                     <img className='destination-image' src={route.routeCoverImage} alt='destination' />
@@ -53,38 +86,61 @@ export default class PopularRoutes extends Component {
                                 </div>
                                 </div>
                                 <div className='card-body'>
-                                <a href="/" class="btn btn-primary deal-btn">VIEW DEAL</a>
+                                <Button color='danger' onClick={this.toggleModal} id={i}>VIEW DEAL</Button>
                                 </div>
                                 </li>
                             </div>
+                            <Modal centered isOpen={this.state.displayFlightModal}>
+                        <ModalHeader toggle={this.toggleModal}>Search Flights</ModalHeader>
+                        <ModalBody>
+                            <div className='modal-form'>
+                                <form onSubmit={this.handleSubmit} className='flight-form'>
+                                    <div>
+                                    <label>
+                                        Round-trip
+                                        <input type='radio' name='tripType'/>
+                                    </label>
+                                    <label>
+                                        One Way
+                                        <input type='radio' name='tripType'/>
+                                    </label>
+                                    <label>From*
+                                        <input type='text' name='origin' id='from' required value={this.state.popularRoutes[i].origin} onChange={this.handleInputChange} />
+                                    </label>
+                                    <label>To*   
+                                        <input type='text' name='destination' id='to' required value={this.state.destination} onChange={this.handleInputChange} />
+                                    </label>
+                                    <label>
+                                        Depart*
+                                        <input type='date' name='departureDate' id='depart' required value={this.state.departureDate} onChange={this.handleInputChange} />
+                                    </label>     
+                                    <label>
+                                        Return*
+                                        <input type='date' name='returnDate' id='return' required value={this.state.returnDate} onChange={this.handleInputChange} />
+                                    </label>
+                                        <label>Passengers
+                                        <input type='number' min='1' max='10' name='passengers' id='passengers' required onChange={this.handleInputChange} />
+                                        </label>
+                                    <label>
+                                        Promo Code
+                                        <input type='text' name='promoCode' id='promoCode' onChange={this.handleInputChange} />
+                                    </label>
+                                        
+                                    </div>
+                                    <div className='form-group form-button'>
+                                        <input type='submit' name='search' id='search' className='form-submit-btn' value='Search Flights' />
+                                    </div>
+                                </form>
+                                {message && <div style={{ color: "red", paddingTop: "1rem" }}> {message} </div>}
+                            </div>
+                        </ModalBody>
+                    </Modal>
+                    </>
                         )
                     })}
                 </ul>
-                    {/* {this.state.popularRoutes.map(route => {
-                        return(
-                            <div class="card w-50">
-                                <img class="card-img-top" src={route.routeCoverImage} alt="route" />
-                                <div className='card-body'>
-                                <div class="row">
-                                    <div className='col-sm-8'>
-                                        <h5 class="card-title">{route.origin}-{route.destination}</h5>
-                                        <p class="card-text">{route.departureDate}</p>  
-                                    </div>
-                                    <div className='col-sm-4'></div>
-                                </div>
-                                <div className='row to-left'>
-                                <div className='col-sm-8'></div>
-                                    <div className='col-sm-4'>
-                                        <p className='card-text'>Fares from ${route.priceUSD}</p>
-                                        <p className='card-text'>{route.tripType}</p>
-                                    </div>
-                                </div>
-                                <a href="/" class="btn btn-primary">VIEW DEAL</a>
-                                </div>
-                                
-                            </div>
-                        )
-                    })} */}
+                
+                    
                 </div>
             </div>
         )

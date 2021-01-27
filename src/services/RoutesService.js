@@ -7,6 +7,10 @@ const service = axios.create({
 const MUNDO_SERVICE = {
     popularRoutes() {
         return service.get('/popularRoutes/MC723567Da')
+    },
+
+    searchFlights(flightInfo) {
+        return service.post('/search/MC723567Da', flightInfo)
     }
 }
 
