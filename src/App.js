@@ -1,7 +1,7 @@
 import React from 'react'
 import './App.css';
 import PopularRoutes from './components/PopularRoutes'
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, BrowserRouter } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
 
 export default class App extends React.Component {
@@ -17,10 +17,12 @@ export default class App extends React.Component {
 render() {
     return (
       <div className="App">
-        <Switch>
-          <Route exact path='/' render={props => <PopularRoutes {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
-          <Route exact path='/results' render={props => <SearchResults {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
-        </Switch>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path='/' render={props => <PopularRoutes {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
+            <Route exact path='/results' render={props => <SearchResults {...props} flights={this.state.flightsViewing} onFlightsChange={this.setFlights} />} />
+          </Switch>
+        </BrowserRouter>
       </div>
     );
   }

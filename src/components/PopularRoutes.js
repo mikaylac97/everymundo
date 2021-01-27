@@ -30,7 +30,7 @@ export default class PopularRoutes extends Component {
                 this.setState({
                     popularRoutes: responseFromAPI.data
                 })
-                this.props.onFlightsChange(responseFromAPI.data)
+               this.props.onFlightsChange(responseFromAPI.data)
             })
             .catch(err => console.log(err))
     }
@@ -85,7 +85,7 @@ export default class PopularRoutes extends Component {
         // const splitDate = departureDate?.split('/')
         // console.log(splitDate)
         return (
-            <div className='container'>
+            <div data-testid='popular-routes' className='container'>
                 <div className='row'>
                 <ul>
                     {this.state.popularRoutes.map((route, i) => {

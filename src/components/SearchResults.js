@@ -5,8 +5,14 @@ export default class SearchResults extends Component {
         console.log(this.props.flights)
         return (
             <div>
-                <h2>Search Results</h2>
-                    <h3>{this.props.flights[0]?.origin}-{this.props.flights[0]?.destination}</h3>
+            {!this.props.flights && 
+            <div>
+                Page not found
+            </div>}
+                {this.props.flights &&
+                <>
+                    <h2>Search Results</h2>
+                    <h3>{this?.props?.flights[0]?.origin}-{this?.props?.flights[0]?.destination}</h3>
                     <table>
                     <tr>
                         <th>Departs at</th>
@@ -44,6 +50,8 @@ export default class SearchResults extends Component {
                     })}
                     </table>
                     </>}
+                    </>
+                    }
             </div>
         )
     }
