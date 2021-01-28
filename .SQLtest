@@ -1,0 +1,24 @@
+SELECT `airline_code`, COUNT(*) 
+FROM tracking 
+WHERE `tracking_id`=-1 
+OR `tracking_id` IS NULL 
+AND `date` 
+BETWEEN 2020-01-20 
+AND 2020-01-29 
+GROUP BY `airline_code`
+
+RETURNS -->
+
+**Query #1**
+
+    SELECT `airline_code`, COUNT(*) FROM tracking WHERE `tracking_id`=-1 OR `tracking_id` IS NULL AND `date` BETWEEN 2020-01-20 AND 2020-01-29 GROUP BY `airline_code`;
+
+| airline_code | COUNT(*) |
+| ------------ | -------- |
+| aa           | 2        |
+| ac           | 5        |
+| nk           | 6        |
+
+---
+
+[View on DB Fiddle](https://www.db-fiddle.com/f/fYzRdz7RvCRwxHaGdKYUqq/2)

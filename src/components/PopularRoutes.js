@@ -5,6 +5,8 @@ import MUNDO_SERVICE from '../services/RoutesService'
 import '../App.css'
 
 export default class PopularRoutes extends Component {
+
+
     state = {
         popularRoutes: [],
         searchResults: [],
@@ -23,36 +25,34 @@ export default class PopularRoutes extends Component {
         this.getPopularRoutes();
     }
 
+   
     getPopularRoutes = () => {
         MUNDO_SERVICE
             .popularRoutes()
             .then(responseFromAPI => {
                 this.setState({
                     popularRoutes: responseFromAPI.data
-                })
-               this.props.onFlightsChange(responseFromAPI.data)
+                }) 
+                 this.props.onFlightsChange(responseFromAPI.data)
             })
             .catch(err => console.log(err))
     }
 
+    
     handleInputChange = (event) => {
         const { name, value } = event.target;
         this.setState({ [name]: value });
     }
 
-
     handleSubmit = (event) => {
         event.preventDefault();
+
         const { destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode } = this.state;
         let passengerParseInt = parseInt(passengerCount)
         let flightInfo = JSON.stringify({ destination, origin, tripType, departureDate, returnDate, promoCode, passengerCount: passengerParseInt })
-        axios
-            .post('https://everymundotechnical.herokuapp.com/search/MC723567Da', flightInfo, 
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
+       
+        MUNDO_SERVICE
+            .searchFlights(flightInfo)
             .then(responseFromAPI => {
                 this.setState({ searchResults: responseFromAPI.data })
                 this.props.onFlightsChange(responseFromAPI.data)
@@ -85,9 +85,9 @@ export default class PopularRoutes extends Component {
         // const splitDate = departureDate?.split('/')
         // console.log(splitDate)
         return (
-            <div data-testid='popular-routes' className='container'>
+            <div className='container'>
                 <div className='row'>
-                <ul>
+                <ul data-testid='popular-routes'>
                     {this.state.popularRoutes.map((route, i) => {
                         return(
                             <>
