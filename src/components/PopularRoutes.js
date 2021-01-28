@@ -18,7 +18,7 @@ export default class PopularRoutes extends Component {
         returnDate: '',
         passengerCount: 0,
         promoCode: '',
-        modalIndex: 0
+        modalIndex: null
     }
 
     componentDidMount() {
@@ -30,6 +30,7 @@ export default class PopularRoutes extends Component {
         MUNDO_SERVICE
             .popularRoutes()
             .then(responseFromAPI => {
+                
                 this.setState({
                     popularRoutes: responseFromAPI.data
                 }) 
@@ -41,7 +42,9 @@ export default class PopularRoutes extends Component {
     
     handleInputChange = (event) => {
         const { name, value } = event.target;
-        this.setState({ [name]: value });
+        const popularRoutesCopy = [...this.state.popularRoutes];
+        popularRoutesCopy[this.state.modalIndex][name] = value;
+        this.setState({ popularRoutes: popularRoutesCopy });
     }
 
     handleSubmit = (event) => {
@@ -62,11 +65,28 @@ export default class PopularRoutes extends Component {
     }
 
     toggleModal = (event) => {
+        const { flights } = this.props;
         console.log(event.target.id)
         const { displayFlightModal, modalIndex, destination, origin, tripType, departureDate, returnDate, popularRoutes } = this.state;
         this.setState({
             displayFlightModal: !displayFlightModal,
-            modalIndex: event.target.id,
+            destination: '',
+            origin: '',
+            tripType: '',
+            departureDate: '',
+            returnDate: '',
+            passengerCount: 0,
+            promoCode: '',
+            modalIndex: 0
+        })
+    }
+
+    prefillModal = (event) => {
+        const { displayFlightModal, popularRoutes, modalIndex } = this.state;
+        const { id } = event.target
+        this.setState({
+            displayFlightModal: !displayFlightModal,
+            modalIndex: id,
             destination: popularRoutes[modalIndex]?.destination,
             origin: popularRoutes[modalIndex]?.origin,
             tripType: popularRoutes[modalIndex]?.tripType,
@@ -79,11 +99,11 @@ export default class PopularRoutes extends Component {
 
 
     render() {
-        console.log(this.props)
-        // const { message } = this.state;
+        
         const { popularRoutes, displayFlightModal, modalIndex, departureDate, returnDate, tripType, origin, destination, passengerCount } = this.state;
-        // const splitDate = departureDate?.split('/')
-        // console.log(splitDate)
+
+        console.log(popularRoutes[modalIndex])
+        
         return (
             <div className='container'>
                 <div className='row'>
@@ -114,14 +134,14 @@ export default class PopularRoutes extends Component {
                                 </div>
                                 </div>
                                 <div className='card-body'>
-                                <Button color='danger' onClick={this.toggleModal} id={i}>VIEW DEAL</Button>
+                                <Button color='danger' onClick={this.prefillModal} id={i}>VIEW DEAL</Button>
                                 </div>
                                 </li>
                             </div>
                     </>
                         )
                     })}
-                    <Modal centered isOpen={this.state.displayFlightModal}>
+                    <Modal centered isOpen={this.state.displayFlightModal} >
                         <ModalHeader toggle={this.toggleModal}>Search Flights</ModalHeader>
                         <ModalBody>
                             <div className='modal-form'>
@@ -129,21 +149,21 @@ export default class PopularRoutes extends Component {
                                     <div>
                                     <label>
                                         Round-trip
-                                        <input type='radio' name='tripType' required value='roundTrip' checked={tripType === 'roundTrip'} onChange={this.handleInputChange} />
+                                        <input type='radio' name='tripType' required value='roundTrip' checked={popularRoutes[modalIndex]?.tripType === 'roundTrip'} onChange={this.handleInputChange} />
                                     </label>
                                     <label>
                                         One Way
-                                        <input type='radio' name='tripType' required value='oneWay' checked={tripType === 'oneWay'} onChange={this.handleInputChange} />
+                                        <input type='radio' name='tripType' required value='oneWay' checked={popularRoutes[modalIndex]?.tripType === 'oneWay'} onChange={this.handleInputChange} />
                                     </label>
                                     <label>From*
-                                        <input type='text' name='origin' id='from' required value={origin} onChange={this.handleInputChange} />
+                                        <input type='text' name='origin' id='from' required value={popularRoutes[modalIndex]?.origin} onChange={this.handleInputChange} />
                                     </label>
                                     <label>To*   
-                                        <input type='text' name='destination' id='to' required value={destination} onChange={this.handleInputChange} />
+                                        <input type='text' name='destination' id='to' required value={popularRoutes[modalIndex]?.destination} onChange={this.handleInputChange} />
                                     </label>
                                     <label>
                                         Depart*
-                                        <input type='date' name='departureDate' id='depart' required value={departureDate} onChange={this.handleInputChange} />
+                                        <input type='date' name='departureDate' id='depart' required value={popularRoutes[modalIndex]?.departureDate} onChange={this.handleInputChange} />
                                     </label>     
                                     <label>
                                         Return*
