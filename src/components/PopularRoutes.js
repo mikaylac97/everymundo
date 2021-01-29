@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap'
-import axios from 'axios'
 import MUNDO_SERVICE from '../services/RoutesService'
+// import FlightSearchModal from './FlightSearchModal'
 import '../App.css'
 
 export default class PopularRoutes extends Component {
@@ -9,16 +9,19 @@ export default class PopularRoutes extends Component {
 
     state = {
         popularRoutes: [],
-        searchResults: [],
         displayFlightModal: false,
-        destination: '',
-        origin: '',
-        tripType: '',
-        departureDate: '',
+        modalIndex: null,
         returnDate: '',
         passengerCount: 0,
-        promoCode: '',
-        modalIndex: null
+
+    }
+
+    handleInputChange = (event) => {
+        const { name, value } = event.target;
+        // this.setState({ [name]: value });
+        const popularRoutesCopy = [...this.state.popularRoutes];
+        popularRoutesCopy[this.state.modalIndex][name] = value;
+        this.setState({ popularRoutes: popularRoutesCopy });
     }
 
     componentDidMount() {
@@ -39,18 +42,19 @@ export default class PopularRoutes extends Component {
             .catch(err => console.log(err))
     }
 
-    
-    handleInputChange = (event) => {
-        const { name, value } = event.target;
-        const popularRoutesCopy = [...this.state.popularRoutes];
-        popularRoutesCopy[this.state.modalIndex][name] = value;
-        this.setState({ popularRoutes: popularRoutesCopy });
+
+    toggleModal = (event) => { 
+        
+        this.setState({
+            displayFlightModal: !this.state.displayFlightModal,
+            modalIndex: event.target.id
+        })
     }
 
     handleSubmit = (event) => {
         event.preventDefault();
 
-        const { destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode } = this.state;
+        const { destination, origin, tripType, departureDate, returnDate, passengerCount, promoCode } = this.state.popularRoutes[this.state.modalIndex];
         let passengerParseInt = parseInt(passengerCount)
         let flightInfo = JSON.stringify({ destination, origin, tripType, departureDate, returnDate, promoCode, passengerCount: passengerParseInt })
        
@@ -64,51 +68,17 @@ export default class PopularRoutes extends Component {
             .catch(err => console.log(err))
     }
 
-    toggleModal = (event) => {
-        const { flights } = this.props;
-        console.log(event.target.id)
-        const { displayFlightModal, modalIndex, destination, origin, tripType, departureDate, returnDate, popularRoutes } = this.state;
-        this.setState({
-            displayFlightModal: !displayFlightModal,
-            destination: '',
-            origin: '',
-            tripType: '',
-            departureDate: '',
-            returnDate: '',
-            passengerCount: 0,
-            promoCode: '',
-            modalIndex: 0
-        })
-    }
-
-    prefillModal = (event) => {
-        const { displayFlightModal, popularRoutes, modalIndex } = this.state;
-        const { id } = event.target
-        this.setState({
-            displayFlightModal: !displayFlightModal,
-            modalIndex: id,
-            destination: popularRoutes[modalIndex]?.destination,
-            origin: popularRoutes[modalIndex]?.origin,
-            tripType: popularRoutes[modalIndex]?.tripType,
-            departureDate: popularRoutes[modalIndex]?.departureDate,
-            returnDate: popularRoutes[modalIndex]?.returnDate
-        })
-    }
-
-
-
-
     render() {
-        
-        const { popularRoutes, displayFlightModal, modalIndex, departureDate, returnDate, tripType, origin, destination, passengerCount } = this.state;
-
-        console.log(popularRoutes[modalIndex])
+        const { popularRoutes,  modalIndex  } = this.state;
         
         return (
             <div className='container'>
                 <div className='row'>
                 <ul data-testid='popular-routes'>
                     {this.state.popularRoutes.map((route, i) => {
+                         let textToConvert = route.tripType;
+                        let result = textToConvert.replace( /([A-Z])/g, " $1" );
+                        let sentenceCase = result.charAt(0).toUpperCase() + result.slice(1);
                         return(
                             <>
                             <div id={i}>
@@ -130,17 +100,20 @@ export default class PopularRoutes extends Component {
                                     <div className='fare-price'>
                                         <span>$</span><span>{route.priceUSD}</span>
                                     </div>
-                                    <p>{route.tripType}</p>
+                                    <p>{sentenceCase}</p>
                                 </div>
                                 </div>
                                 <div className='card-body'>
-                                <Button color='danger' onClick={this.prefillModal} id={i}>VIEW DEAL</Button>
+                                <Button color='danger' onClick={this.toggleModal} id={i}>VIEW DEAL</Button>
                                 </div>
                                 </li>
                             </div>
+                            
                     </>
                         )
                     })}
+                            
+                    
                     <Modal centered isOpen={this.state.displayFlightModal} >
                         <ModalHeader toggle={this.toggleModal}>Search Flights</ModalHeader>
                         <ModalBody>
@@ -167,10 +140,10 @@ export default class PopularRoutes extends Component {
                                     </label>     
                                     <label>
                                         Return*
-                                        <input type='date' name='returnDate' id='return' value={returnDate} onChange={this.handleInputChange} />
+                                        <input type='date' name='returnDate' id='return' value={popularRoutes[modalIndex]?.returnDate} onChange={this.handleInputChange} />
                                     </label>
                                         <label>Passengers
-                                        <input type='number' min='1' name='passengerCount' value={passengerCount} id='passengers' pattern="^-?[0-9]\d*\.?\d*$" required onInput={this.handleInputChange} />
+                                        <input type='number' min='0' name='passengerCount' value={popularRoutes[modalIndex]?.passengerCount} id='passengers' pattern="^-?[0-9]\d*\.?\d*$" required onInput={this.handleInputChange} />
                                         </label>
                                     <label>
                                         Promo Code
@@ -182,7 +155,7 @@ export default class PopularRoutes extends Component {
                                         <input type='submit' name='search' id='search' className='form-submit-btn' value='Search Flights' />
                                     </div>
                                 </form>
-                                {/* {message && <div style={{ color: "red", paddingTop: "1rem" }}> {message} </div>} */}
+                               
                             </div>
                         </ModalBody>
                     </Modal>
